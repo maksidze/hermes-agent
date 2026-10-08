@@ -72,7 +72,8 @@ def _ensure_gitignore_entry(repo_root: str) -> None:
         logger.debug("subagent worktree: could not update .gitignore: %s", exc)
 
 
-def create_subagent_worktree(parent_cwd: Optional[str], subagent_id: Optional[str] = None) -> Optional[Dict[str, str]]:
+def create_subagent_worktree(parent_cwd: Optional[str], subagent_id: Optional[str] = None, *,
+                            maintain_ignore: bool = True) -> Optional[Dict[str, str]]:
     """Create an isolated worktree for one child; None (silent downgrade) outside git/on failure."""
     repo_root = resolve_repo_root(parent_cwd)
     if not repo_root:
@@ -82,7 +83,8 @@ def create_subagent_worktree(parent_cwd: Optional[str], subagent_id: Optional[st
     wt_path = Path(repo_root) / ".worktrees" / wt_name
     try:
         wt_path.parent.mkdir(parents=True, exist_ok=True)
-        _ensure_gitignore_entry(repo_root)
+        if maintain_ignore:
+            _ensure_gitignore_entry(repo_root)
         base = _run_git(["rev-parse", "HEAD"], cwd=repo_root)
         base_commit = base.stdout.strip() if base.returncode == 0 else ""
         # The checkout runs the repo-named smudge filter; skip isolation when it cannot be neutralized.

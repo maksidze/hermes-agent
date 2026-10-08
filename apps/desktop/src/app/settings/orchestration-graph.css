@@ -1,0 +1,78 @@
+.orchestration-canvas {
+  height: 520px;
+  min-width: 0;
+  background: var(--background);
+  border: 1px solid var(--ui-stroke-secondary);
+  border-radius: var(--radius);
+}
+.orchestration-canvas .react-flow {
+  --xy-background-color-default: var(--background);
+  --xy-node-background-color-default: var(--background);
+  --xy-controls-button-background-color-default: var(--background);
+  --xy-controls-button-color-default: var(--foreground);
+  --xy-minimap-background-color-default: var(--background);
+  --xy-edge-stroke-default: var(--ui-text-secondary);
+}
+.orchestration-pool {
+  width: 250px;
+  border: 1px solid var(--ui-stroke-secondary);
+  border-radius: var(--radius);
+  color: var(--foreground);
+  background: var(--background);
+  box-shadow: var(--shadow-nous);
+  font-size: 12px;
+}
+.orchestration-pool.selected {
+  outline: 2px solid var(--ui-accent);
+}
+.orchestration-pool-title {
+  padding: 10px 12px;
+  background: var(--dt-muted);
+  border-radius: var(--radius) var(--radius) 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.orchestration-pool-models {
+  padding: 12px;
+  display: grid;
+  gap: 6px;
+  overflow-wrap: anywhere;
+}
+.orchestration-port {
+  position: relative;
+  padding: 5px 14px;
+  text-align: right;
+}
+.orchestration-port .react-flow__handle {
+  top: 50%;
+  background: currentColor;
+  border-color: var(--background);
+  width: 10px;
+  height: 10px;
+}
+.orchestration-port.success {
+  color: var(--ui-accent);
+}
+.orchestration-port.failure {
+  color: var(--ui-red);
+}
+.orchestration-port.unavailable,
+.orchestration-port.uncertain {
+  color: var(--ui-text-secondary);
+}
+.orchestration-canvas .react-flow__edge.success path,
+.orchestration-canvas .react-flow__edge.planning path {
+  stroke: var(--ui-accent);
+}
+.orchestration-canvas .react-flow__edge.failure path {
+  stroke: var(--ui-red);
+}
+.orchestration-canvas .react-flow__edge.uncertain path {
+  stroke-dasharray: 5 4;
+}
+
+@media (max-width: 600px) {
+  .orchestration-canvas .react-flow__minimap {
+    display: none;
+  }
+}

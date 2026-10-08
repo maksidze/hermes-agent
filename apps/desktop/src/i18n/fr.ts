@@ -442,7 +442,7 @@ export const frOverrides = {
       signIn: 'Se connecter',
       view: 'Afficher',
       disable: 'Désactiver',
-      disabledMessage: name => `${name} MCP a été désactivé. Vous pouvez le réactiver depuis Capacités → MCP.`,
+      disabledMessage: name => `${name} MCP a été désactivé. Vous pouvez le réactiver depuis Paramètres → MCP.`,
       disableFailed: name => `Impossible de désactiver ${name} MCP.`
     },
     errors: {

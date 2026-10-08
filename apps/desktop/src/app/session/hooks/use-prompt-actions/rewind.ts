@@ -492,6 +492,14 @@ export interface ReloadPlan {
   userIndex: number
 }
 
+/** Replays model input, not the attachment row's local-only preview URLs. */
+function replayPrompt(message: ChatMessage, text = chatMessageText(message).trim()): string {
+  const refs = message.attachmentSourceRefs ?? message.attachmentRefs?.filter(ref => /^@[a-z]+:/i.test(ref)) ?? []
+  const missing = [...new Set(refs)].filter(ref => !text.split('\n').includes(ref))
+
+  return [missing.join('\n'), text].filter(Boolean).join('\n\n')
+}
+
 /** The user turn to re-run for a reload from `parentId` (or the last turn). */
 export function planReload(messages: ChatMessage[], parentId: null | string): null | ReloadPlan {
   const parentIndex = parentId ? messages.findIndex(m => m.id === parentId) : messages.length - 1
@@ -505,7 +513,7 @@ export function planReload(messages: ChatMessage[], parentId: null | string): nu
 
   const userIndex = parentIndex - userBack
   const userMessage = messages[userIndex]
-  const text = userMessage ? chatMessageText(userMessage).trim() : ''
+  const text = userMessage ? replayPrompt(userMessage) : ''
 
   if (!userMessage || !text) {
     return null
@@ -593,7 +601,7 @@ export function planRestore(messages: ChatMessage[], messageId: string, target?:
     throw new Error('Could not find the message to restore.')
   }
 
-  const sourceText = chatMessageText(source).trim()
+  const sourceText = replayPrompt(source)
   const text = (sourceText || target?.text?.trim() || '').trim()
 
   if (!text) {
@@ -659,8 +667,8 @@ export function planEdit(messages: ChatMessage[], edited: AppendMessage): EditPl
     editedMessage: { ...source, parts: [textPart(text)] },
     isFailedTurn,
     sourceIndex,
-    sourceText: chatMessageText(source).trim(),
-    text,
+    sourceText: replayPrompt(source),
+    text: replayPrompt(source, text),
     truncateOrdinal: isFailedTurn ? undefined : visibleUserOrdinal(messages, sourceIndex),
     truncateMessageId: isFailedTurn ? undefined : source.id,
     truncateRowId: isFailedTurn ? undefined : source.rowId

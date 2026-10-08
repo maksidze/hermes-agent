@@ -19,6 +19,8 @@ import type { ChatBarState } from './types'
 
 import { ChatBar } from './index'
 
+vi.mock('./orchestration-pill', () => ({ OrchestrationPill: () => null }))
+
 afterEach(() => {
   cleanup()
   mainComposerScope.clear()

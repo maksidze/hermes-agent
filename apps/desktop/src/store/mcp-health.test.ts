@@ -134,6 +134,9 @@ it('shows the toast with Sign in + Disable, then stays quiet for a day and re-nu
     expect(mocks.notify).toHaveBeenCalledTimes(1)
     const toast = mocks.notify.mock.calls[0][0]
 
+    toast.action.onClick()
+    expect(window.location.hash).toBe('#/settings?tab=mcp&server=linear')
+
     // Same day, still broken: a reconnect sweep must not re-pop.
     clock += 60 * 60 * 1000
     mocks.gatewayState.set('closed')

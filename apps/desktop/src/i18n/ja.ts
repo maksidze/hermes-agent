@@ -208,7 +208,7 @@ export const ja = defineLocale({
       signIn: 'サインイン',
       view: '表示',
       disable: '無効化',
-      disabledMessage: name => `${name} MCP を無効にしました。機能 → MCP からいつでも再有効化できます。`,
+      disabledMessage: name => `${name} MCP を無効にしました。設定 → MCP からいつでも再有効化できます。`,
       disableFailed: name => `${name} MCP を無効にできませんでした。`
     },
     errors: {

@@ -4,6 +4,7 @@ import { en } from './en'
 import { es } from './es'
 import { fr } from './fr'
 import { ja } from './ja'
+import { withOrchestration } from './orchestration'
 import { ru } from './ru'
 import type { BundledLocale, Translations } from './types'
 import { zh } from './zh'
@@ -13,15 +14,15 @@ import { zhHant } from './zh-hant'
  *  packs, backend `.desktop.yaml` packs) are NOT here — resolve through
  *  `resolveTranslations()` in `./registry`, which layers them over these. */
 export const TRANSLATIONS: Record<BundledLocale, Translations> = {
-  en,
-  zh,
-  'zh-hant': zhHant,
-  ja,
-  ar,
-  ru,
-  fr,
-  de,
-  es
+  en: withOrchestration(en, 'en'),
+  zh: withOrchestration(zh, 'zh'),
+  'zh-hant': withOrchestration(zhHant, 'zh-hant'),
+  ja: withOrchestration(ja, 'ja'),
+  ar: withOrchestration(ar, 'ar'),
+  ru: withOrchestration(ru, 'ru'),
+  fr: withOrchestration(fr, 'fr'),
+  de: withOrchestration(de, 'de'),
+  es: withOrchestration(es, 'es')
 }
 
 export const BUNDLED_LOCALES = Object.keys(TRANSLATIONS) as readonly BundledLocale[]

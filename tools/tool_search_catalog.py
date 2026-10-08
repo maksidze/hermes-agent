@@ -194,15 +194,21 @@ def search_catalog(catalog: List[CatalogEntry], query: str, limit: int = 5, *,
     required_terms = _required_term_coverage(len(answerable))
     exact_name = query.strip().lower()
 
+    def _name_match(entry: CatalogEntry) -> bool:
+        # Models often spell a displayed MCP name as words ("mcp editor preview").
+        # The index drops the mcp prefix, so the rare-token gate must not hide
+        # that unambiguous named tool behind description-only matches.
+        return entry.name.lower() == exact_name or _tokenize(entry.name) == query_tokens
+
     def _admitted(entry: CatalogEntry) -> bool:
         """Carries the intent word AND enough of the answerable terms (exact name is exempt)."""
-        if entry.name.lower() == exact_name:
+        if _name_match(entry):
             return True
         tokens = set(entry._tokens)
         return gate in tokens and sum(1 for t in answerable if t in tokens) >= required_terms
 
     scored = [
-        (float("inf") if entry.name.lower() == exact_name
+        (float("inf") if _name_match(entry)
          else _bm25_score(query_tokens, entry._tokens, *corpus_stats), entry)
         for entry in catalog if _admitted(entry)]
     scored.sort(key=lambda x: x[0], reverse=True)

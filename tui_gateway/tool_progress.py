@@ -311,6 +311,9 @@ def _prepare_tool_result_metadata(sid: str, tool_call_id: str, name: str, args: 
     session = _sessions.get(sid)
     snapshot = session.setdefault("edit_snapshots", {}).pop(tool_call_id, None) if session is not None else None
     metadata = {}
+    if name == "orchestrate_task":
+        from agent.orchestration.progress import display_result
+        metadata["orchestration"] = display_result(result)
     with contextlib.suppress(Exception):
         from agent.display import render_edit_diff_with_delta
         rendered: list[str] = []
@@ -479,6 +482,8 @@ def _progress_subagent(sid: str, name: str, preview, kw, event_type):
 # event_type -> (handler, requires): `requires` names the arg that must be truthy for the row to be
 # emitted at all ("name" / "preview" / None).
 _PROGRESS_HANDLERS = {
+    "orchestration.progress": (lambda sid, name, preview, kw: _emit("orchestration.progress", sid,
+        {"tool_id": kw["tool_id"], "entries": kw["entries"], "journal": kw["journal"]}), None),
     "tool.output_risk": (_progress_output_risk, "name"), "reasoning.available": (_progress_reasoning, "preview"),
     "moa.reference": (_progress_moa_reference, "name"),
     # Answer-only drops MoA content (references, progress/phase lines that land in the reasoning

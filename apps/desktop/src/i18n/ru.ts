@@ -210,7 +210,7 @@ export const ru = defineLocale({
       signIn: 'Войти',
       view: 'Просмотр',
       disable: 'Отключить',
-      disabledMessage: name => `${name} MCP отключён. Включить снова можно в любой момент в разделе Возможности → MCP.`,
+      disabledMessage: name => `${name} MCP отключён. Включить снова можно в любой момент в разделе Настройки → MCP.`,
       disableFailed: name => `Не удалось отключить ${name} MCP.`
     },
     errors: {

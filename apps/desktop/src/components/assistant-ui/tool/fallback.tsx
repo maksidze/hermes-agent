@@ -19,7 +19,6 @@ import {
 
 import { useSessionView } from '@/app/chat/session-view'
 import { AnsiText } from '@/components/assistant-ui/ansi-text'
-import { MarkdownImage } from '@/components/assistant-ui/markdown-text'
 import { TimelineTimestamp } from '@/components/assistant-ui/thread/timeline-timestamp'
 import { useElapsedSeconds } from '@/components/chat/activity-timer'
 import { ActivityTimerText } from '@/components/chat/activity-timer-text'
@@ -79,6 +78,7 @@ import {
   type ToolStatus,
   type ToolTitleAction
 } from './fallback-model'
+import { hasOutputImages, ToolOutputImages } from './result-images'
 import { isToolCallPart, summarizeToolRun } from './run-summary'
 import { ToolRunTicker } from './run-ticker'
 
@@ -506,7 +506,7 @@ function ToolEntry({ part }: ToolEntryProps) {
   const hasExpandableContent =
     !summaryOnly &&
     Boolean(
-      view.imageUrl ||
+      hasOutputImages({ part, imageUrl: view.imageUrl }) ||
       showInlineDiff ||
       showDetail ||
       hasSearchHits ||
@@ -667,11 +667,7 @@ function ToolEntry({ part }: ToolEntryProps) {
           {part.toolName === 'terminal' && toolViewMode !== 'technical' && (
             <TerminalTranscript command={view.terminalCommand} exitCode={view.terminalExitCode} />
           )}
-          {view.imageUrl && (
-            <div className="max-w-72 overflow-hidden rounded-[0.25rem] border border-(--ui-stroke-tertiary)">
-              <MarkdownImage alt={copy.outputAlt} src={view.imageUrl} />
-            </div>
-          )}
+          <ToolOutputImages imageUrl={view.imageUrl} part={part} />
           {hasSearchHits && view.searchHits && (
             <div className="max-w-full text-xs leading-relaxed text-(--ui-text-secondary)">
               {view.searchQuery && (

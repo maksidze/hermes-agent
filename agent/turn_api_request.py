@@ -103,6 +103,9 @@ def build_api_request(
     )
 
     agent._reset_stream_delivery_tracking()
+    execution_guard = getattr(agent, "_orchestration_execution", None)
+    if execution_guard is not None:
+        execution_guard.before_request(agent)
     # Per-attempt first-chunk timestamp so a stale value never leaks into post_api_request.
     agent._last_api_first_chunk_at = None
     # api_messages was built for the primary; a fallback (DeepSeek / Kimi / MiMo) may

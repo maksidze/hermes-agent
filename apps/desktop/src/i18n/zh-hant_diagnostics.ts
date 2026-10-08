@@ -32,7 +32,7 @@ export const zhHantDiagnostics = {
       signIn: '登入',
       view: '檢視',
       disable: '停用',
-      disabledMessage: name => `已停用 ${name} MCP。可隨時在「功能 → MCP」重新啟用。`,
+      disabledMessage: name => `已停用 ${name} MCP。可隨時在「設定 → MCP」重新啟用。`,
       disableFailed: name => `無法停用 ${name} MCP。`
     },
     errors: {

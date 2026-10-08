@@ -58,6 +58,8 @@ class SubagentLaunchRequest:
     correlation_id: Optional[str] = None
     metadata: Mapping[str, Any] = dataclasses.field(default_factory=dict)
     timeout_seconds: Optional[float] = None
+    provider: Optional[str] = None
+    reasoning_effort: Optional[str] = None
 
 
 @dataclasses.dataclass(frozen=True)
@@ -143,6 +145,7 @@ class _Record:
     started_at: Optional[float] = None
     completed_at: Optional[float] = None
     result: Optional[SubagentResult] = None
+    execution: Any = None
 
 
 @dataclasses.dataclass
@@ -242,7 +245,7 @@ class SubagentLifecycleService:
     def __init__(self, parent_agent_resolver: Callable[[], Any]) -> None:
         self._parent_agent_resolver = parent_agent_resolver
 
-    def launch(self, request: SubagentLaunchRequest) -> SubagentHandle:
+    def launch(self, request: SubagentLaunchRequest, *, _execution=None) -> SubagentHandle:
         parent = self._parent_agent_resolver()
         if parent is None:
             raise SubagentLifecycleError("No active Hermes parent session is available.")
@@ -257,7 +260,12 @@ class SubagentLifecycleService:
                 raise SubagentLifecycleError("Duplicate correlation_id for this parent session.")
         # Lazy: delegate construction stays internal, plugins never import private delegation helpers.
         from tools.delegate_tool import _build_child_preserving_parent_tools, DEFAULT_MAX_ITERATIONS
-        child = _build_child_preserving_parent_tools(
+        build = _build_child_preserving_parent_tools
+        if request.provider is not None or request.reasoning_effort is not None or _execution is not None:
+            from agent.subagent_launch import build_routed_child
+            def build(**kwargs):
+                return build_routed_child(request, parent, _execution)
+        child = build(
             task_index=0, goal=request.goal, context=request.context,
             toolsets=list(request.allowed_toolsets) if request.allowed_toolsets else None,
             model=request.model, max_iterations=DEFAULT_MAX_ITERATIONS, task_count=1, parent_agent=parent, role=request.role,
@@ -271,7 +279,7 @@ class SubagentLifecycleService:
             getattr(child, "provider", None), getattr(child, "model", None), getattr(child, "_delegate_role", request.role),
             int(getattr(child, "_delegate_depth", 1) or 1), self._capability(subagent_id, parent_session_id, created),
         )
-        record = _Record(handle, SubagentState.PENDING, created, agent=child)
+        record = _Record(handle, SubagentState.PENDING, created, agent=child, execution=_execution)
         with _REGISTRY.lock:
             _REGISTRY.records[subagent_id] = record
             if request.correlation_id:
@@ -365,6 +373,8 @@ class SubagentLifecycleService:
         try:
             from tools.delegate_tool import _run_child_lifecycle
             raw = _run_child_lifecycle(0, goal, record.agent, parent)
+            if record.execution is not None:
+                record.execution.capture(record.agent, raw)
             is_dict = isinstance(raw, dict)
             raw = raw if is_dict else {}
             status = str(raw.get("status", "error"))
@@ -399,6 +409,12 @@ class SubagentLifecycleService:
         for rejected, message in _REQUEST_REJECTIONS:
             if rejected(request):
                 raise SubagentLifecycleError(message)
+        if request.provider is not None and (not isinstance(request.provider, str) or not request.provider.strip()):
+            raise SubagentLifecycleError("provider must be a non-empty provider ID")
+        if request.reasoning_effort is not None:
+            from hermes_constants import parse_reasoning_effort
+            if not isinstance(request.reasoning_effort, str) or parse_reasoning_effort(request.reasoning_effort) is None:
+                raise SubagentLifecycleError("Invalid reasoning_effort")
         try:
             metadata_bytes = len(json.dumps(dict(request.metadata), sort_keys=True).encode())
         except (TypeError, ValueError) as exc:

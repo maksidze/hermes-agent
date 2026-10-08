@@ -12,6 +12,10 @@ def prepare_chat_messages(client, kwargs: dict) -> dict:
     transport sanitizes its copy. The resolved SDK client identifies the wire;
     native Messages/Responses adapters must retain their reasoning sidecars.
     """
+    from agent.execution_policy import current_policy
+    policy = current_policy.get()
+    if policy is not None:
+        policy.before_request(client)
     if not isinstance(client, (OpenAI, AsyncOpenAI)) or "messages" not in kwargs:
         return kwargs
     messages = ChatCompletionsTransport().convert_messages(

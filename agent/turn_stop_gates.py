@@ -129,6 +129,14 @@ def apply_stop_gates(
             ),
         )
 
+    if "orchestrate_task" in (getattr(agent, "valid_tool_names", ()) or ()):
+        from agent.orchestration.stop_gate import stop_nudge
+        orchestration_nudge = stop_nudge(agent)
+        if orchestration_nudge:
+            final_msg["finish_reason"] = "orchestration_verification_required"
+            _append_interim_answer(agent, final_msg, messages, conversation_history, "orchestration interim flush failed")
+            return _continue(orchestration_nudge, "_verification_stop_synthetic")
+
     _verify_nudge = _verify_on_stop_nudge(agent)
     if _verify_nudge:
         agent._verification_stop_nudges = getattr(agent, "_verification_stop_nudges", 0) + 1

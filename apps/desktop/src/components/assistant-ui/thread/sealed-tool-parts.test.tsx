@@ -59,6 +59,34 @@ afterEach(() => {
 })
 
 describe('tool parts sealed without a result', () => {
+  it('keeps an orchestration timeline in the main transcript after result offloading', async () => {
+    render(
+      <Harness
+        message={sealedMessage(
+          'orchestrate_task',
+          { plan: true },
+          {
+            result: 'Saved to a separate file',
+            toolResultMetadata: {
+              orchestration: {
+                status: 'blocked',
+                timeline: [
+                  {
+                    event: 'escalation_started',
+                    time: 1,
+                    detail: 'Preserved transfer reason',
+                    fields: { profile: 'balanced' }
+                  }
+                ]
+              }
+            }
+          }
+        )}
+      />
+    )
+    expect(await screen.findByText('Preserved transfer reason')).toBeTruthy()
+  })
+
   it('renders a sealed delegate_task as the generic row, not a running task list', async () => {
     $activeSessionId.set('sess-1')
     const { container } = render(<Harness message={sealedMessage('delegate_task', { tasks: [{ goal: 'inspect' }] })} />)

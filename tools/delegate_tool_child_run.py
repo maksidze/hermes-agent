@@ -559,6 +559,9 @@ def _build_result_entry(
     # "(empty)" is run_agent's give-up sentinel after repeated empty LLM
     # responses (usually a transport bug) — a failure, not a success.
     usable_summary = bool(summary) and summary.strip() != "(empty)"
+    execution = getattr(child, "_orchestration_execution", None)
+    if execution is not None:
+        execution.capture(child, result)
     interrupt_note = ""
     if result.get("interrupted", False):
         status, exit_reason = "interrupted", "interrupted"
@@ -736,7 +739,8 @@ class _ChildRun:
             return entry_dict
         from tools import subagent_worktree
         try:
-            entry_dict["worktree"] = subagent_worktree.finalize_subagent_worktree(info)
+            execution = getattr(self.child, "_orchestration_execution", None)
+            entry_dict["worktree"] = subagent_worktree.finalize_subagent_worktree(info, prune=execution is None)
         except Exception as e:
             # State is unknown: emit the SAME flagged schema the parent expects,
             # via the shared factory so the two producers never drift.
@@ -758,7 +762,9 @@ class _ChildRun:
             record_session_cwd(self.child_task_id, get_session_cwd(self.parent_task_id))
             register_container_alias(self.child_task_id, self.parent_task_id)
 
-        self.worktree_info = _create_isolated_worktree(self.parent_agent, self.parent_task_id, self.subagent_id)
+        execution = getattr(self.child, "_orchestration_execution", None)
+        workspace_factory = execution.worktree if execution is not None else _create_isolated_worktree
+        self.worktree_info = workspace_factory(self.parent_agent, self.parent_task_id, self.subagent_id)
         if self.worktree_info is not None:
             with _quiet("worktree cwd seed failed: %s"):
                 from tools.terminal_tool import record_session_cwd as _rsc
@@ -766,7 +772,8 @@ class _ChildRun:
             # The child's context is already built; carry the isolation contract on
             # the goal message instead (same turn, no system-prompt mutation).
             from tools.subagent_worktree import build_worktree_context_note
-            self.goal = self.goal + build_worktree_context_note(self.worktree_info)
+            note = execution.workspace_note if execution is not None else build_worktree_context_note
+            self.goal = self.goal + note(self.worktree_info)
         self.wall_start = time.time()
         self.parent_reads_snapshot = list(file_state.known_reads(self.parent_task_id)) if self.parent_task_id else []
 
@@ -851,6 +858,9 @@ class _ChildRun:
         # Resolved after seed_workspace so a multimodal goal's text part carries the worktree note too.
         _images = list(getattr(child, "_delegate_images", None) or [])
         user_message: Any = _build_child_goal_message(self.goal, _images, child) if _images else self.goal
+        execution = getattr(child, "_orchestration_execution", None)
+        if execution is not None:
+            user_message = execution.input_message(user_message)
 
         def _run_with_thread_capture():
             worker_thread_holder["t"] = threading.current_thread()
@@ -861,6 +871,9 @@ class _ChildRun:
                 )
 
         future = executor.submit(contextvars.copy_context().run, _run_with_thread_capture)
+        execution = getattr(child, "_orchestration_execution", None)
+        if execution is not None:
+            execution.worker_started(future)
         # One wait covers both ways out: the worker finishing, or the heartbeat's stale verdict.
         # Without the second, a worker wedged after its final answer holds a finite (-Q / Bot Chat
         # one-shot) turn — and its session lease — forever, since that runtime has no gateway

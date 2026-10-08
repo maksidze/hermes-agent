@@ -10,6 +10,30 @@ interface ConfigSubpageDefinition {
 // schema is inferred at runtime. Embedded model and device-local controls use
 // these same page ids in ConfigSettings.
 const CONFIG_SUBPAGE_DEFINITIONS: Record<string, ConfigSubpageDefinition[]> = {
+  orchestration: [
+    {
+      id: 'general',
+      labelKey: 'orchestration_general',
+      fields: ['orchestration.enabled'],
+      prefixes: [
+        'orchestration.routing.',
+        'orchestration.privacy.',
+        'orchestration.automation.',
+        'orchestration.workspace.'
+      ]
+    },
+    { id: 'profiles', labelKey: 'orchestration_profiles', fields: ['orchestration.profiles'] },
+    { id: 'routes', labelKey: 'orchestration_routes', fields: ['orchestration.routes', 'orchestration.graphs'] },
+    { id: 'specializations', labelKey: 'orchestration_specializations', fields: ['orchestration.specializations'] },
+    { id: 'escalation', labelKey: 'orchestration_escalation', prefixes: ['orchestration.escalation.'] },
+    { id: 'verification', labelKey: 'orchestration_verification', prefixes: ['orchestration.verification.'] },
+    {
+      id: 'limits',
+      labelKey: 'orchestration_limits',
+      prefixes: ['orchestration.budget.', 'orchestration.availability.']
+    },
+    { id: 'diagnostics', labelKey: 'orchestration_diagnostics', prefixes: ['orchestration.logging.'] }
+  ],
   model: [
     {
       id: 'main',

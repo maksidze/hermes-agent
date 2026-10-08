@@ -50,6 +50,7 @@ import {
 import { MemoryConnect } from './memory/connect'
 import { ProviderConfigPanel } from './memory/provider-config-panel'
 import { ModelSettings, ModelSettingsSkeleton } from './model-settings'
+import { OrchestrationSettings } from './orchestration-settings'
 import { PoolLimitsSetting } from './pool-limits-setting'
 import { EmptyState, ListRow, SettingsContent, SettingsSkeleton, ToggleRow } from './primitives'
 import { SettingsProfileScope } from './profile-scope'
@@ -70,6 +71,10 @@ export function ConfigSettings({
   // when the target profile changes — the same guarantee useOnProfileSwitch
   // provides for app-wide switches, without hand-clearing each piece.
   const scopeProfile = useStore($settingsRequestProfile)
+
+  if (activeSectionId === 'orchestration') {
+    return <OrchestrationSettings onConfigSaved={onConfigSaved} scopeProfile={scopeProfile} subpage={subpage} />
+  }
 
   return (
     <ConfigSettingsInner

@@ -215,6 +215,7 @@ export function useSubmitPrompt(deps: SubmitPromptDeps) {
       // Images use their bounded base64 thumbnail so the optimistic bubble
       // renders inline without embedding the full source — see optimisticAttachmentRef.
       let attachmentRefs = attachments.map(optimisticAttachmentRef).filter((r): r is string => Boolean(r))
+      let attachmentSourceRefs = attachments.map(a => a?.refText).filter((r): r is string => Boolean(r))
 
       const buildContextText = (atts: ComposerAttachment[]): string => {
         // atts may be the post-sync array, which can reintroduce holes; filter
@@ -468,7 +469,8 @@ export function useSubmitPrompt(deps: SubmitPromptDeps) {
         role: 'user',
         parts: [textPart(bubbleText || (attachmentRefs.length ? '' : attachments.map(a => a.label).join(', ')))],
         timestamp: submittedAt,
-        attachmentRefs
+        attachmentRefs,
+        attachmentSourceRefs
       })
 
       const releaseBusy = () => {
@@ -882,6 +884,7 @@ export function useSubmitPrompt(deps: SubmitPromptDeps) {
         // the gateway receives @file: paths that resolve in its workspace.
         // Images keep their inline bounded thumbnail — see optimisticAttachmentRef.
         attachmentRefs = syncedAttachments.map(optimisticAttachmentRef).filter((r): r is string => Boolean(r))
+        attachmentSourceRefs = syncedAttachments.map(a => a?.refText).filter((r): r is string => Boolean(r))
         rewriteOptimistic(liveSessionId, syncedAttachments)
         const text = buildContextText(syncedAttachments)
 

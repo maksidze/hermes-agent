@@ -63,6 +63,19 @@ afterEach(() => {
 })
 
 describe('vision_analyze activity image', () => {
+  it('shows an MCP cached image only after explicitly expanding its result', async () => {
+    $connection.set({ mode: 'local' } as never)
+    render(<ToolFallback {...({
+      args: {}, toolCallId: 'mcp-image', toolName: 'mcp__editor__preview',
+      result: JSON.stringify({ result: `MEDIA:${IMAGE_PATH}\nPreview` })
+    } as unknown as ComponentProps<typeof ToolFallback>)} />)
+    expect(screen.queryByRole('img')).toBeNull()
+    expect(readFileDataUrl).not.toHaveBeenCalled()
+    fireEvent.click(screen.getByRole('button', { expanded: false }))
+    fireEvent.click(screen.getByRole('button', { expanded: false }))
+    await waitFor(() => expect(readFileDataUrl).toHaveBeenCalled())
+    expect(await screen.findByRole('img')).toBeTruthy()
+  })
   it('exposes the analyzed local image behind the disclosure and resolves it through the local file bridge', async () => {
     $connection.set({ mode: 'local' } as never)
     renderVisionRow()

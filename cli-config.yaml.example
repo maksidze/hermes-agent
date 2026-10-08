@@ -2327,3 +2327,62 @@ updates:
 #   # This runs ONCE per process at startup, so it cannot replace a credential
 #   # that expires mid-session. For a single provider whose token needs
 #   # re-minting during a session, use `providers.<name>.key_cmd` instead.
+
+# Optional multi-model orchestration (fork feature). Changes to the tool surface
+# switch applies to the next user message. Provider credentials remain in provider settings.
+# See website/docs/user-guide/features/orchestration.md for the complete example.
+# orchestration:
+#   enabled: false
+#   automation:
+#     planner_profile: local_fast      # select your architect profile for automatic mode
+#     max_tasks: 6
+#   workspace: {enabled: false, apply_on_success: true}  # local Git worktree + attempt checkpoints
+#   routing:
+#     strategy: agent                  # classifier strategies are not in the MVP
+#     default_route: general
+#     default_level: fast
+#     allow_direct_deep: true
+#     preferred_profile: ""           # optional fixed worker, independent of level; disables escalation
+#     max_specialist_switches: 2       # task-specialist transfers, separate from capacity escalation
+#   profiles:
+#     local_fast:
+#       enabled: true
+#       provider: custom:local         # an existing configured provider ID
+#       model: your-local-model
+#       level: fast
+#       reasoning_effort: low
+#       priority: 0                    # higher first within the same level
+#       max_parallel: 1
+#       capabilities: {tools: auto, vision: auto, structured_output: auto}
+#   routes:
+#     general: [local_fast]
+#   specializations:
+#     roleplay:
+#       enabled: false                 # select a suitable route, then enable; start directly with @roleplay
+#       description: Fictional scenes and character dialogue
+#       route: general
+#       local_only: false
+#       isolate_workspace: false       # prose does not require a Git project
+#       planner_profile: local_fast
+#       verifier_profile: local_fast
+#   escalation:
+#     enabled: true
+#     same_profile_repairs: 1
+#     max_escalations: 2
+#     triggers: {verification_failed: true, schema_failed: true, repetition_detected: true, explicit_request: true}
+#   verification:
+#     deterministic: true
+#     semantic: risk_based             # off | risk_based | always
+#     verifier_profile: local_fast
+#     uncertain_action: escalate       # accept | repair | escalate
+#     main_agent_stop_gate: false
+#   availability: {cache_seconds: 30, failure_cooldown_seconds: 60}
+#   budget:
+#     max_attempts: 4
+#     max_escalations: 2
+#     max_model_calls: 40
+#     max_calls_per_attempt: 12
+#     max_parallel_tasks: 4
+#     timeout_seconds: 600
+#   privacy: {cloud_allowed: true}
+#   logging: {decisions: true, attempts: true, verification: true}

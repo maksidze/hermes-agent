@@ -609,7 +609,9 @@ export function toChatMessages(messages: SessionMessage[]): ChatMessage[] {
       ...(pendingAbsorbedRows > 0 ? { serverRowSpan: pendingAbsorbedRows + 1 } : {}),
       ...(reactions.length ? { reactions } : {}),
       ...(message.role === 'assistant' && messageInterrupted(message.display_metadata) ? { interrupted: true } : {}),
-      ...(extractedAttachmentRefs ? { attachmentRefs: extractedAttachmentRefs } : {})
+      ...(extractedAttachmentRefs
+        ? { attachmentRefs: extractedAttachmentRefs, attachmentSourceRefs: extractedAttachmentRefs }
+        : {})
     })
 
     activeAssistantIndex = message.role === 'assistant' ? result.length - 1 : null

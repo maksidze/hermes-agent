@@ -271,6 +271,8 @@ def _config_schema_with_virtual_fields() -> Dict[str, Dict[str, Any]]:
 
 
 CONFIG_SCHEMA = _config_schema_with_virtual_fields()
+from agent.orchestration.settings import schema_fields as _orchestration_schema_fields
+CONFIG_SCHEMA.update(_orchestration_schema_fields())
 
 
 def _is_command_provider_block(value: Any) -> bool:

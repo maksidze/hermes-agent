@@ -235,7 +235,7 @@ export const zh = defineLocale({
       signIn: '登录',
       view: '查看',
       disable: '禁用',
-      disabledMessage: name => `已禁用 ${name} MCP。可随时在「能力 → MCP」中重新启用。`,
+      disabledMessage: name => `已禁用 ${name} MCP。可随时在「设置 → MCP」中重新启用。`,
       disableFailed: name => `无法禁用 ${name} MCP。`
     },
     errors: {

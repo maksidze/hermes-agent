@@ -1,6 +1,5 @@
 import { useStore } from '@nanostores/react'
 import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router'
 
 import { Button } from '@/components/ui/button'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
@@ -32,10 +31,9 @@ import {
 import { HostedConnectorDialog } from './hosted-dialog'
 import { LocalConnectorDialog } from './local-dialog'
 import { RemoveServerConfirm } from './local-slots'
-import { openToolsList, resetOpenedTools } from './tools-summary'
+import { resetOpenedTools } from './tools-summary'
 import type { ConnectorCardModel, ConnectorsFilter, HostedPhase } from './types'
-
-const toolsListKey = (card: ConnectorCardModel) => (card.residency === 'local' ? localServerName(card) : card.slug)
+import { useOpenConnectorFromRoute } from './use-open-connector-from-route'
 
 export interface ConnectorsTabProps {
   gateway: HermesGateway | null
@@ -113,7 +111,7 @@ export function ConnectorsTab({ gateway, profile }: ConnectorsTabProps) {
 
   const openCard = useMemo(() => cards.find(card => cardKey(card) === openKey) ?? null, [cards, openKey])
 
-  useOpenFromRoute(cards, setOpenKey)
+  useOpenConnectorFromRoute(cards, setOpenKey)
 
   const write = async (pending: Promise<{ error?: unknown; ok: boolean }>) => {
     const outcome = await pending
@@ -354,39 +352,4 @@ function HostedNotice({ hasGuest, phase }: { hasGuest: boolean; phase: HostedPha
   }
 
   return hasGuest ? <p className="shrink-0 text-[0.7rem] text-(--ui-text-tertiary)">{copy.freeTierNote}</p> : null
-}
-
-function useOpenFromRoute(cards: readonly ConnectorCardModel[], open: (key: string) => void): void {
-  const { hash, pathname, search } = useLocation()
-  const navigate = useNavigate()
-
-  useEffect(() => {
-    const params = new URLSearchParams(search)
-    const server = params.get('server')
-    const slug = params.get('connector')
-
-    if (!server && !slug) {
-      return
-    }
-
-    const target = server
-      ? cards.find(card => card.residency === 'local' && card.slug === server)
-      : cards.find(card => card.slug === slug)
-
-    if (!target) {
-      return
-    }
-
-    if (params.get('tool')) {
-      openToolsList(toolsListKey(target))
-    }
-
-    open(cardKey(target))
-    params.delete('server')
-    params.delete('connector')
-    params.delete('tool')
-
-    const query = params.toString()
-    navigate({ hash, pathname, search: query ? `?${query}` : '' }, { replace: true })
-  }, [cards, hash, navigate, open, pathname, search])
 }

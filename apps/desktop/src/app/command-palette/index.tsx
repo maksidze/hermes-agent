@@ -462,6 +462,12 @@ const NON_CONFIG_SETTINGS: ReadonlyArray<{
     labelKey: 'keysSettings',
     tab: 'keys&kview=settings'
   },
+  {
+    icon: Wrench,
+    keywords: ['mcp', 'model context protocol', 'servers', 'tools', 'connectors'],
+    labelKey: 'mcp',
+    tab: 'mcp'
+  },
   { icon: Archive, keywords: ['history', 'archived'], labelKey: 'archivedChats', tab: 'sessions' },
   {
     icon: codiconIcon('extensions'),
@@ -1297,7 +1303,7 @@ function CommandPaletteBody({ onExited }: { onExited: () => void }) {
           id: `mcp-${name}`,
           keywords: ['mcp', 'server', 'tool'],
           label: name,
-          run: go(`${CAPABILITIES_ROUTE}?tab=connectors&server=${encodeURIComponent(name)}`)
+          run: go(`${SETTINGS_ROUTE}?tab=mcp&server=${encodeURIComponent(name)}`)
         }))
       })
     }

@@ -437,7 +437,7 @@ export const en: Translations = {
       signIn: 'Sign in',
       view: 'View',
       disable: 'Disable',
-      disabledMessage: name => `${name} MCP disabled. Re-enable it any time from Capabilities → MCP.`,
+      disabledMessage: name => `${name} MCP disabled. Re-enable it any time from Settings → MCP.`,
       disableFailed: name => `Could not disable ${name} MCP.`
     },
     errors: {

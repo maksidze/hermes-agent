@@ -19,6 +19,7 @@ import { TimelineTimestamp } from '@/components/assistant-ui/thread/timeline-tim
 import { DelegateTool } from '@/components/assistant-ui/tool/delegate'
 import { ToolFallback, ToolGroupSlot } from '@/components/assistant-ui/tool/fallback'
 import { parseMaybeObject, toolCallFailed } from '@/components/assistant-ui/tool/fallback-model'
+import { OrchestrationTool } from '@/components/assistant-ui/tool/orchestration'
 import { formatElapsed, useElapsedSeconds, useMeasuredDuration } from '@/components/chat/activity-timer'
 import { ActivityTimerText } from '@/components/chat/activity-timer-text'
 import { GeneratedImage } from '@/components/chat/generated-image-result'
@@ -96,9 +97,13 @@ const ClarifyToolPart: FC<TimelineToolCallProps> = props => {
 const ConnectionsToolPart: FC<TimelineToolCallProps> = props =>
   mcpTargets(props.toolName, props.args).length > 0 ? <McpSetupTool {...props} /> : <ConnectorTool {...props} />
 
+const OrchestrationToolPart: FC<TimelineToolCallProps> = props =>
+  props.args?.plan === true ? <OrchestrationTool {...props} /> : <ToolFallback {...props} />
+
 const TOOL_CARDS: Record<CardToolName, FC<TimelineToolCallProps>> = {
   clarify: ClarifyToolPart,
   delegate_task: DelegateToolPart,
+  orchestrate_task: OrchestrationToolPart,
   image_generate: ImageGenerateTool,
   manage_catalog: CatalogInstallTool,
   manage_connections: ConnectionsToolPart

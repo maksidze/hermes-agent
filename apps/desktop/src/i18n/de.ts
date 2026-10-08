@@ -441,7 +441,7 @@ export const deOverrides = {
       view: 'Anzeigen',
       disable: 'Deaktivieren',
       disabledMessage: name =>
-        `${name} MCP deaktiviert. Sie können es jederzeit unter Fähigkeiten → MCP wieder aktivieren.`,
+        `${name} MCP deaktiviert. Sie können es jederzeit unter Einstellungen → MCP wieder aktivieren.`,
       disableFailed: name => `${name} MCP konnte nicht deaktiviert werden.`
     },
     errors: {

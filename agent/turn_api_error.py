@@ -79,6 +79,13 @@ def handle_api_error(
     if agent.thinking_callback:
         agent.thinking_callback("")
 
+    from agent.orchestration.budget import BudgetExceeded
+    if isinstance(api_error, BudgetExceeded):
+        return _verdict("return", {"failed": True, "completed": False,
+                                  "failure_reason": str(api_error), "messages": messages,
+                                  "final_response": "Orchestration limit reached: " + str(api_error),
+                                  "api_calls": api_call_count})
+
     _recovered, active_system_prompt = recover_before_classification(
         agent, api_error, messages=messages, api_messages=api_messages, api_kwargs=api_kwargs,
         active_system_prompt=active_system_prompt,

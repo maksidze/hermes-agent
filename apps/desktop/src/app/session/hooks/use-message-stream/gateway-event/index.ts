@@ -21,6 +21,7 @@ import { handleFreeTierEvent } from './free-tier'
 import { handleInputRequestEvent } from './input-requests'
 import { handleLifecycleEvent } from './lifecycle'
 import { handleMessageStreamEvent } from './message-stream'
+import { handleOrchestrationEvent } from './orchestration'
 import { handleControlEvent } from './session-control'
 import { handleSessionInfoEvent } from './session-info'
 import { handleStatusEvent } from './status'
@@ -87,6 +88,7 @@ const HANDLERS: GatewayEventHandler[] = [
   handleControlEvent,
   handleMessageStreamEvent,
   handleToolEvent,
+  handleOrchestrationEvent,
   handleInputRequestEvent,
   handleDesktopBridgeEvent,
   handleStatusEvent

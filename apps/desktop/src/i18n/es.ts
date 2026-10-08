@@ -443,7 +443,7 @@ export const esOverrides = {
       signIn: 'Iniciar sesión',
       view: 'Ver',
       disable: 'Desactivar',
-      disabledMessage: name => `MCP ${name} desactivado. Vuelve a activarlo cuando quieras desde Capacidades → MCP.`,
+      disabledMessage: name => `MCP ${name} desactivado. Vuelve a activarlo cuando quieras desde Ajustes → MCP.`,
       disableFailed: name => `No se pudo desactivar el MCP ${name}.`
     },
     errors: {

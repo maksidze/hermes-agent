@@ -59,6 +59,8 @@ import {
 import type { SessionProfileRoute } from '@/store/session-request-router'
 import { runtimeSessionOwner, sessionTileOwnerRoute } from '@/store/session-states'
 
+import { preserveAttachmentRefs } from './resume-attachments'
+
 // Re-exported for the many session-actions/tile call sites that already import
 // it from here; the canonical definition lives in @/store/session.
 export { sessionMatchesStoredId }
@@ -256,7 +258,7 @@ const COMPARED_FIELDS = [
   'durationS'
 ] as const
 
-const IGNORED_FIELDS = ['attachmentRefs', 'parts', 'serverRowSpan'] as const
+const IGNORED_FIELDS = ['attachmentRefs', 'attachmentSourceRefs', 'parts', 'serverRowSpan'] as const
 
 // Compile-time check: every ChatMessagePart discriminant must be handled by
 // chatPartsEquivalent. If @assistant-ui adds a new part type, this fails tsc.
@@ -511,14 +513,7 @@ export function reconcileResumeMessages(nextMessages: ChatMessage[], previousMes
       }
     }
 
-    if (
-      sameText &&
-      message.role === 'user' &&
-      preserved.attachmentRefs === undefined &&
-      previous.attachmentRefs?.length
-    ) {
-      preserved = { ...preserved, attachmentRefs: [...previous.attachmentRefs] }
-    }
+    preserved = preserveAttachmentRefs(preserved, previous, sameText)
 
     // Reactions and the row id come from the same authoritative rows as the
     // text, but a live/optimistic row that hasn't round-tripped yet carries

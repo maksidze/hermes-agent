@@ -52,7 +52,7 @@ _REVEAL_WINDOW_SECONDS = 30
 
 # Display order for tabs — unlisted categories sort alphabetically after these.
 _CATEGORY_ORDER = [
-    "general", "agent", "terminal", "display", "delegation",
+    "general", "agent", "orchestration", "terminal", "display", "delegation",
     "memory", "compression", "security", "browser", "voice",
     "tts", "stt", "logging", "discord", "auxiliary",
 ]
@@ -96,6 +96,21 @@ async def get_defaults():
     return DEFAULT_CONFIG
 
 
+@config_router.get("/api/orchestration/diagnostics")
+async def orchestration_diagnostics(profile: Optional[str] = None):
+    from agent.orchestration.diagnostics import snapshot
+    return await scoped_to_thread(profile, snapshot)
+
+
+@router.post("/api/orchestration/test-profile/{profile_id}")
+async def orchestration_test_profile(profile_id: str, profile: Optional[str] = None):
+    from agent.orchestration.diagnostics import test_profile
+    try:
+        return await scoped_to_thread(profile, lambda: test_profile(profile_id))
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
 @config_router.get("/api/config/schema")
 async def get_schema(profile: Optional[str] = None):
     # Discovery-driven provider options (voice command providers + memory
@@ -131,6 +146,12 @@ async def update_config(
                 existing = require_readable_config_before_write()
                 incoming = _denormalize_config_from_web(body.config)
                 merged = _deep_merge(existing, incoming)
+                if "orchestration" in incoming:
+                    from agent.orchestration.settings import validate_update
+                    try:
+                        validate_update(merged, incoming)
+                    except ValueError as exc:
+                        raise HTTPException(status_code=400, detail=str(exc)) from exc
                 # Compare normalized approvals.mode across the in-memory
                 # documents, not config blocks and not cache re-reads: the page
                 # PUTs the defaulted GET record while disk holds sparse YAML (a

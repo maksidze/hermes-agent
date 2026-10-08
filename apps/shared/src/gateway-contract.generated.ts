@@ -4572,6 +4572,18 @@ export interface DisplayInstallDonePayload {
   code: number
   status: DisplayStatus
 }
+/** RunProgress: public plan, tools and verification, keyed to the parent tool row. */
+export interface OrchestrationProgressPayload {
+  tool_id: string
+  entries: OrchestrationProgressEntry[]
+  journal: string
+}
+export interface OrchestrationProgressEntry {
+  event: string
+  time: number
+  detail: string
+  fields: Record<string, string>
+}
 /** ``tui_gateway/entry.py`` (stdio) / ``tui_gateway/ws.py`` (WebSocket) first frame. */
 export interface GatewayReadyPayload {
   skin: SkinPayload
@@ -4717,6 +4729,7 @@ export interface ToolCompletePayload {
   summary?: string | null
   result_text?: string | null
   inline_diff?: string | null
+  orchestration?: Record<string, unknown> | null
   todos?: unknown[] | null
   revision?: number | null
   labels?: ToolLabel[] | null
@@ -5831,6 +5844,7 @@ export interface BackendGatewayEventMap {
   'notification.clear': NotificationClearPayload
   /** Show / replace a keyed out-of-band notice (toast or status bar). */
   'notification.show': NotificationShowPayload
+  'orchestration.progress': OrchestrationProgressPayload
   /** Pairing state moved; refetch pairing. */
   'pairing.changed': ChangeSignalPayload
   /** Focus / reveal a named desktop pane. */
@@ -5956,6 +5970,7 @@ export const GATEWAY_EVENT_TYPES = [
   'notice',
   'notification.clear',
   'notification.show',
+  'orchestration.progress',
   'pairing.changed',
   'pane.reveal',
   'pet.changed',

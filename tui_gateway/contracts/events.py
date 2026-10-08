@@ -23,6 +23,23 @@ from .config_free_tier_control import FreeTierChallengePayload, SessionControlSn
 from .registry import event
 
 
+class OrchestrationProgressEntry(Payload):
+    event: str
+    time: float
+    detail: str
+    fields: dict[str, str]
+
+
+class OrchestrationProgressPayload(Payload):
+    """RunProgress: public plan, tools and verification, keyed to the parent tool row."""
+    tool_id: str
+    entries: list[OrchestrationProgressEntry]
+    journal: str
+
+
+event("orchestration.progress", OrchestrationProgressPayload)
+
+
 class OpenPayload(Payload):
     """A payload whose known keys are typed but whose closed set is owned elsewhere."""
 
@@ -291,6 +308,7 @@ class ToolCompletePayload(Payload):
     summary: str | None = None
     result_text: str | None = None
     inline_diff: str | None = None
+    orchestration: dict[str, JsonValue] | None = None
     todos: list[JsonValue] | None = None
     revision: int | None = None
     labels: list[ToolLabel] | None = None

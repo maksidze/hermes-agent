@@ -63,6 +63,8 @@ export type ChatMessage = {
   durationS?: number
   /** Composer attachment ref strings (`@file:...`, `@image:...`) sent with this user message. */
   attachmentRefs?: string[]
+  /** Gateway-resolvable refs, kept separately from blob/thumbnail display refs. */
+  attachmentSourceRefs?: string[]
   /** Durable backend `messages.id`. Absent until the row is persisted. */
   rowId?: number
   /** Backend transcript rows this message represents — the hydration fold
@@ -76,6 +78,7 @@ export type ChatMessage = {
 }
 
 export type GatewayEventPayload = {
+  orchestration?: Record<string, unknown>
   /** Unix seconds supplied by tests/newer gateways; the desktop falls back to
    * its local receipt clock when older gateways omit it. */
   timestamp?: number

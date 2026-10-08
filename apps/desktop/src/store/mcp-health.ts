@@ -98,7 +98,7 @@ let offGatewayState: (() => void) | null = null
 let offProfile: (() => void) | null = null
 
 function openMcpServerPage(name: string): void {
-  window.location.hash = `#/capabilities?tab=connectors&server=${encodeURIComponent(name)}`
+  window.location.hash = `#/settings?tab=mcp&server=${encodeURIComponent(name)}`
 }
 
 // "Disable" from the toast: `enabled: false` in config.yaml (the server stays

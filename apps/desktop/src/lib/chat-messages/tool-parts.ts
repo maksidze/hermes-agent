@@ -313,6 +313,7 @@ function toolResultMetadata(
 ): ToolResultMetadata {
   return {
     ...previous,
+    ...(payload?.orchestration ? { orchestration: payload.orchestration } : {}),
     ...(payload?.inline_diff !== undefined ? { inline_diff: payload.inline_diff } : {}),
     ...(payload?.summary !== undefined ? { summary: payload.summary } : {}),
     ...(payload?.message !== undefined ? { message: payload.message } : {}),
@@ -819,7 +820,14 @@ function storedToolResultMetadata(toolMessage: SessionMessage): ToolResultMetada
   const display = parseMaybeJsonObject(toolMessage.display_metadata)
   const metadata = parseMaybeJsonObject(display.tool_result_metadata)
 
-  return typeof metadata.inline_diff === 'string' ? { inline_diff: metadata.inline_diff } : undefined
+  const orchestration = parseMaybeJsonObject(metadata.orchestration)
+
+  return Object.keys(orchestration).length || typeof metadata.inline_diff === 'string'
+    ? {
+        ...(Object.keys(orchestration).length ? { orchestration } : {}),
+        ...(typeof metadata.inline_diff === 'string' ? { inline_diff: metadata.inline_diff } : {})
+      }
+    : undefined
 }
 
 export function applyStoredToolResult(messages: ChatMessage[], toolMessage: SessionMessage): boolean {

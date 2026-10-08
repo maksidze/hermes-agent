@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   getHermesConfigRecord,
+  getHermesConfigSchema,
   peekConfigReadOrigin,
   saveHermesConfig,
   setApiRequestConnection,
@@ -56,5 +57,17 @@ describe('config read/write route binding', () => {
       })
     )
     expect(puts.filter(call => call[0].connectionId === 'connection-b')).toHaveLength(0)
+  })
+
+  it('pins schema reads to the selected connection and profile', async () => {
+    setApiRequestConnection('connection-b')
+    await getHermesConfigSchema({ connectionId: 'connection-a', profile: 'research' })
+    expect(api).toHaveBeenCalledWith(
+      expect.objectContaining({
+        connectionId: 'connection-a',
+        profile: 'research',
+        path: '/api/config/schema'
+      })
+    )
   })
 })

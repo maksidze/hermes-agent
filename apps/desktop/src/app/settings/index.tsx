@@ -52,7 +52,7 @@ import { SECTIONS } from './constants'
 import { GatewaySettings } from './gateway-settings'
 import { KeybindSettings } from './keybind-settings'
 import { KEYS_VIEWS, KeysSettings, type KeysView } from './keys-settings'
-import { movedSettingsTabRedirect } from './moved-tabs'
+import { McpSettings } from './mcp-settings'
 import { NotificationsSettings } from './notifications-settings'
 import {
   PAGE_SCOPED_PARAMS,
@@ -78,6 +78,7 @@ const SETTINGS_VIEWS: readonly SettingsViewId[] = [
   'connections',
   'keybinds',
   'keys',
+  'mcp',
   'vault',
   'notifications',
   'billing',
@@ -98,24 +99,12 @@ const SUBPAGE_VIEWS: Partial<Record<SettingsViewId, ComponentType<{ subpage?: st
   notifications: NotificationsSettings
 }
 
-export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: SettingsPageProps) {
+export function SettingsView({ gateway, onClose, onConfigSaved, onMainModelChanged }: SettingsPageProps) {
   const scopeProfile = useStore($settingsScopeProfile)
   const activeConnectionId = useStore($activeConnectionId)
   const { t } = useI18n()
   const navigate = useNavigate()
   const { hash, pathname, search } = useLocation()
-
-  // MCP moved out of Settings into Capabilities. Keep old `/settings?tab=mcp`
-  // deep links working — `useRouteEnumParam` would silently coerce the unknown
-  // tab to the default view otherwise. (`tab=plugins` is live: Settings ▸
-  // Plugins hosts each plugin's own settings pages.)
-  useEffect(() => {
-    const redirect = movedSettingsTabRedirect(search)
-
-    if (redirect) {
-      navigate(redirect, { replace: true })
-    }
-  }, [navigate, search])
 
   const [activeView] = useRouteEnumParam('tab', SETTINGS_VIEWS, 'config:model' as SettingsViewId)
 
@@ -398,6 +387,13 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
             onSelect: () => setActiveView('sessions')
           },
           {
+            active: activeView === 'mcp',
+            icon: Wrench,
+            id: 'mcp',
+            label: t.settings.nav.mcp,
+            onSelect: () => setActiveView('mcp')
+          },
+          {
             active: activeView === 'plugins',
             children: pluginSettingsNavChildren(plugins.entries, plugins.target, plugins.open),
             gapBefore: true,
@@ -560,6 +556,8 @@ export function SettingsView({ onClose, onConfigSaved, onMainModelChanged }: Set
     <KeysSettings view={keysView} />
   ) : activeView === 'billing' ? (
     <BillingSettings />
+  ) : activeView === 'mcp' ? (
+    <McpSettings gateway={gateway} key={scopeProfile} profile={scopeProfile} />
   ) : activeView === 'plugins' ? (
     <PluginSettingsPane
       entries={plugins.entries}

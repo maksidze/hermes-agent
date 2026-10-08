@@ -59,3 +59,11 @@ parent-broadening toolsets are rejected, and per-tool blocks, working-directory
 overrides, and per-launch timeouts are explicitly rejected until Hermes can
 support them without weakening isolation. Use `allowed_toolsets` to narrow a
 child; Hermes's existing unsafe-tool block remains enforced.
+
+Optional `provider` and `reasoning_effort` fields select an existing configured
+provider and the child's reasoning setting before its first turn. They use the
+same runtime credential resolver and scoped fallback policy as delegation; they
+do not accept credentials. Omitting both preserves the original launch path.
+The internal execution-policy argument is reserved for Hermes orchestration and
+is not part of the plugin contract. See [model orchestration](../user-guide/features/orchestration.md)
+for the optional routing, verification and budget layer built on this service.

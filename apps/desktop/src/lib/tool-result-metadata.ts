@@ -1,6 +1,7 @@
 /** Gateway display hints are not the tool's result. Keep them off the raw
  * payload so summaries cannot overwrite evidence, including false/null/"". */
 export interface ToolResultMetadata {
+  orchestration?: Record<string, unknown>
   duration_s?: number
   error?: string | boolean
   inline_diff?: string

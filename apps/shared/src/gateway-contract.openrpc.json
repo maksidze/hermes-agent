@@ -20080,6 +20080,66 @@
         "title": "OptionalProjectResult",
         "type": "object"
       },
+      "OrchestrationProgressEntry": {
+        "additionalProperties": false,
+        "properties": {
+          "event": {
+            "title": "Event",
+            "type": "string"
+          },
+          "time": {
+            "title": "Time",
+            "type": "number"
+          },
+          "detail": {
+            "title": "Detail",
+            "type": "string"
+          },
+          "fields": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Fields",
+            "type": "object"
+          }
+        },
+        "required": [
+          "event",
+          "time",
+          "detail",
+          "fields"
+        ],
+        "title": "OrchestrationProgressEntry",
+        "type": "object"
+      },
+      "OrchestrationProgressPayload": {
+        "additionalProperties": false,
+        "description": "RunProgress: public plan, tools and verification, keyed to the parent tool row.",
+        "properties": {
+          "tool_id": {
+            "title": "Tool Id",
+            "type": "string"
+          },
+          "entries": {
+            "items": {
+              "$ref": "#/components/schemas/OrchestrationProgressEntry"
+            },
+            "title": "Entries",
+            "type": "array"
+          },
+          "journal": {
+            "title": "Journal",
+            "type": "string"
+          }
+        },
+        "required": [
+          "tool_id",
+          "entries",
+          "journal"
+        ],
+        "title": "OrchestrationProgressPayload",
+        "type": "object"
+      },
       "PaneRevealPayload": {
         "additionalProperties": true,
         "description": "``tools/focus_pane_tool.py``.",
@@ -36377,6 +36437,19 @@
             "default": null,
             "title": "Inline Diff"
           },
+          "orchestration": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Orchestration"
+          },
           "todos": {
             "anyOf": [
               {
@@ -40273,6 +40346,18 @@
           "name": "payload",
           "schema": {
             "$ref": "#/components/schemas/NotificationShowPayload"
+          }
+        }
+      ]
+    },
+    {
+      "name": "orchestration.progress",
+      "summary": "",
+      "params": [
+        {
+          "name": "payload",
+          "schema": {
+            "$ref": "#/components/schemas/OrchestrationProgressPayload"
           }
         }
       ]
